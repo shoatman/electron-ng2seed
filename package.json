@@ -24,7 +24,6 @@
     "electron"
   ],
   "dependencies": {
-    "electron-debug": "^1.0.0",
     "@angular/common": "2.0.0",
     "@angular/compiler": "2.0.0",
     "@angular/core": "2.0.0",
@@ -33,7 +32,9 @@
     "@angular/platform-browser": "2.0.0",
     "@angular/platform-browser-dynamic": "2.0.0",
     "@angular/router": "3.0.0",
+    "adal-angular": "^1.0.12",
     "core-js": "^2.4.1",
+    "electron-debug": "^1.0.0",
     "rxjs": "5.0.0-beta.12",
     "zone.js": "^0.6.23"
   },
