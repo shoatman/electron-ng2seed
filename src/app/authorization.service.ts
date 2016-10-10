@@ -16,7 +16,8 @@ export class AuthorizationService {
       		clientId: '188743b4-4d95-4971-9d7b-1f2c105c9bda', //REPLACE WITH YOUR CLIENT ID
       		redirectUri: 'http://localhost', //REPLACE WITH YOUR REDIRECT URL
       		displayCall: this.electronSignIn.bind(this),
-      		callback: this.userSignedIn.bind(this)
+      		callback: this.userSignedIn.bind(this),
+      		popUp: true
 		})
 
 		var webPreferences: Electron.WebPreferences = {};
@@ -30,7 +31,6 @@ export class AuthorizationService {
 		this.authWindow = new remote.BrowserWindow(options);
 
 		var handleRedirect = function(event: Electron.Event, oldURL:string, newURL:string, isMainFrame:boolean, httpResponseCode:number, requestMethod:string, referrer:string, headers:Electron.Headers){
-
 			this.handleCallBack(newURL);
 			console.log('redirect detected');
 		};
@@ -38,14 +38,12 @@ export class AuthorizationService {
 		var handleNavigation = function(event: Electron.Event, url:string, that:any){
 			this.handleCallBack(url);
 			console.log('navigation detected');
-
 		};
 
 		var handleRedirectBound = handleRedirect.bind(this);
 		var handleNavigationBound = handleNavigation.bind(this);
 		
 		this.authWindow.webContents.on("did-get-redirect-request", handleRedirectBound);
-
 		this.authWindow.webContents.on("will-navigate", handleNavigationBound);
 		
 	}
@@ -53,12 +51,8 @@ export class AuthorizationService {
 
 	private handleCallBack(url:string){
 		if (url.indexOf(this.authContext.config.redirectUri) != -1) {
-
 			this.authContext.handleWindowCallback(url.substr(url.indexOf('#')));
 			this.authWindow.hide();
-
-
-
 		}
 	}
 
@@ -67,11 +61,12 @@ export class AuthorizationService {
 
 		this.authWindow.loadURL(url);
 		this.authWindow.show();
-
 	}
 
-	private userSignedIn(user:any){
-		console.log(user);
+	private userSignedIn(msg: string, token:any){
+		console.log(msg);
+		console.log(token);
+		console.log(this.authContext.getCachedUser());
 	}
 
 	public signIn(){
