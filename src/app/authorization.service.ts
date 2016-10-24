@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {remote} from 'electron';
+import {AuthenticationContextConfig, AuthenticationContext, Logger, LogLevel} from './adal';
 
-declare var AuthenticationContext:any; //Make an existing javascript library available in TS... no net
 
 /*
 Notes:
@@ -21,7 +21,13 @@ export class AuthorizationService {
 	private authWindow: Electron.BrowserWindow;
 
 	public constructor() {
-		this.authContext = new AuthenticationContext( {
+
+		var logger: Logger = {
+			level : LogLevel.VERBOSE,
+			log : function(msg:string){console.log(msg);}
+		}	
+
+		var authConfig : AuthenticationContextConfig = {
 			instance: 'https://login.microsoftonline.com/',
       		tenant: 'common', //COMMON OR YOUR TENANT ID
       		clientId: '188743b4-4d95-4971-9d7b-1f2c105c9bda', //REPLACE WITH YOUR CLIENT ID
@@ -29,8 +35,13 @@ export class AuthorizationService {
       		displayCall: this.electronSignIn.bind(this),
       		//callback: this.userSignedIn.bind(this),
       		popUp: false,
-      		extraQueryParameter: 'prompt=login'
-		})
+      		extraQueryParameter: 'prompt=login',
+      		storage: window.localStorage,
+      		crypto: window.crypto,
+      		logger: logger
+		};
+
+		this.authContext = new AuthenticationContext( authConfig)
 	}
 
 
