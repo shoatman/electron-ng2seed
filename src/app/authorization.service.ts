@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {remote} from 'electron';
-import {AuthenticationContextConfig, AuthenticationContext, Logger, LogLevel} from './adal';
+import {AuthenticationContextConfig, AuthenticationContext, Logger, LogLevel, CONSTANTS} from './adal';
 
 
 /*
@@ -19,6 +19,7 @@ export class AuthorizationService {
 
 	private authContext: any;
 	private authWindow: Electron.BrowserWindow;
+	private armResourceId: string = "797f4846-ba00-4fd7-ba43-dac1f8f63013";
 
 	public constructor() {
 
@@ -27,15 +28,21 @@ export class AuthorizationService {
 			log : function(msg:string){console.log(msg);}
 		}	
 
+		if(window.localStorage){
+			console.log("Local storage available");
+		}else{
+			console.log("local storage not available");
+		}
+
 		var authConfig : AuthenticationContextConfig = {
 			instance: 'https://login.microsoftonline.com/',
       		tenant: 'common', //COMMON OR YOUR TENANT ID
       		clientId: '188743b4-4d95-4971-9d7b-1f2c105c9bda', //REPLACE WITH YOUR CLIENT ID
-      		redirectUri: 'http://localhost', //REPLACE WITH YOUR REDIRECT URL
+      		redirectUri: 'http://armhelper', //REPLACE WITH YOUR REDIRECT URL
       		displayCall: this.electronSignIn.bind(this),
       		//callback: this.userSignedIn.bind(this),
       		popUp: false,
-      		extraQueryParameter: 'prompt=login',
+      		//extraQueryParameter: 'prompt=login', //Hmm... this gets used on all reqwuests... not just login
       		storage: window.localStorage,
       		crypto: window.crypto,
       		logger: logger
@@ -84,13 +91,14 @@ export class AuthorizationService {
 			var hash = url.substr(url.indexOf('#'));
 			var requestInfo = this.authContext.getRequestInfo(hash);
             this.authContext.saveTokenFromHash(requestInfo);
-            this.authContext.callback("", requestInfo.parameters[this.authContext.CONSTANTS.ID_TOKEN]);
+            this.authContext.callback("", requestInfo.parameters[CONSTANTS.ID_TOKEN]);
 			this.authWindow.hide();
 		}
 	}
 
 	private electronSignIn(url:string){
 		console.log(url);
+		url = url + "&prompt=login";
 
 		this.createAuthWindow();
 		this.authWindow.loadURL(url);
@@ -103,8 +111,7 @@ export class AuthorizationService {
 	}
 
 	public acquireToken(callback: CallBackFunc, resource: string){
-		this.authContext.callback = callback;
-		this.authContext.acquireToken(resource);
+		this.authContext.acquireToken(resource, callback);
 	}
 
 	public getCachedUser(){

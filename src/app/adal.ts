@@ -16,7 +16,7 @@
         VERBOSE
     }
 
-    const CONSTANTS:any = {
+    export const CONSTANTS:any = {
         ACCESS_TOKEN: 'access_token',
         EXPIRES_IN: 'expires_in',
         ID_TOKEN: 'id_token',
@@ -187,7 +187,7 @@
         };
 
         private getItem (key:string): any {
-           this.config.storage.getItem(key);
+           return this.config.storage.getItem(key);
         };
 
         /* jshint ignore:start */
@@ -307,7 +307,7 @@
                 }
 
                 str.push('redirect_uri=' + encodeURIComponent(obj.redirectUri));
-                str.push('state=' + encodeURIComponent(obj.state));
+                str.push('state=' + encodeURIComponent(this._state));
 
                 if (obj.hasOwnProperty('slice')) {
                     str.push('slice=' + encodeURIComponent(obj.slice));
@@ -338,6 +338,8 @@
                 match = search.exec(query);
             }
 
+            this.verbose("Deserialized Object from hash");
+            console.log(obj);
             return obj;
         };
 
@@ -526,17 +528,17 @@
             this._callBacksMappedToRenewStates[expectedState].push(callback);
             if (!this._callBackMappedToRenewStates[expectedState]) {
                 this._callBackMappedToRenewStates[expectedState] = function (message:string, token:any) {
-                    for (var i = 0; i < this._callBacksMappedToRenewStates[expectedState].length; ++i) {
+                    for (var i = 0; i < self._callBacksMappedToRenewStates[expectedState].length; ++i) {
                         try {
-                            this._callBacksMappedToRenewStates[expectedState][i](message, token);
+                            self._callBacksMappedToRenewStates[expectedState][i](message, token);
                         }
                         catch (error) {
                             self.warn(error);
                         }
                     }
-                    this._activeRenewals[resource] = null;
-                    this._callBacksMappedToRenewStates[expectedState] = null;
-                    this._callBackMappedToRenewStates[expectedState] = null;
+                    self._activeRenewals[resource] = null;
+                    self._callBacksMappedToRenewStates[expectedState] = null;
+                    self._callBackMappedToRenewStates[expectedState] = null;
                 };
             }
         };
@@ -634,6 +636,9 @@
          * @param {requestCallback} callback
          */
         acquireToken(resource:string, callback:TokenReturnCallBackFunc) {
+            
+            this.verbose("acquireToken Enter");
+
             if (this.isEmpty(resource)) {
                 this.warn('resource is required');
                 callback('resource is required', null);
@@ -666,9 +671,12 @@
                     this.verbose('renewing idtoken');
                     this.renewIdToken(callback);
                 } else {
+                    this.verbose('renewing token');
                     this.renewToken(resource, callback);
                 }
             }
+
+            this.verbose("acquireToken exit");
         };
 
         /**
@@ -862,6 +870,7 @@
          * @returns {string} error message related to login
          */
         getRequestInfo(hash:string) {
+            this.verbose("getRequestInfo enter");
             hash = this.getHash(hash);
             var parameters = this.deserialize(hash);
             var requestInfo = {
@@ -871,7 +880,11 @@
                 stateResponse: '',
                 requestType: RequestType.Unknown
             };
+
+
             if (parameters) {
+                this.verbose("getRequestInfo: Parameters found");
+                this.verbose(parameters.toString());
                 requestInfo.parameters = parameters;
                 if (parameters.hasOwnProperty(CONSTANTS.ERROR_DESCRIPTION) ||
                     parameters.hasOwnProperty(CONSTANTS.ACCESS_TOKEN) ||
@@ -891,12 +904,18 @@
 
                     requestInfo.stateResponse = stateResponse;
 
+                    this.verbose(CONSTANTS.STORAGE.STATE_LOGIN);
+                    this.verbose(this.getItem(CONSTANTS.STORAGE.STATE_LOGIN));
+
                     // async calls can fire iframe and login request at the same time if developer does not use the API as expected
                     // incoming callback needs to be looked up to find the request type
                     if (stateResponse === this.getItem(CONSTANTS.STORAGE.STATE_LOGIN)) {
+                        this.verbose("stored state and returned state match");
                         requestInfo.requestType = RequestType.Login;
                         requestInfo.stateMatch = true;
                         return requestInfo;
+                    }else{
+                        this.warn("states do not match");
                     }
 
                     /*

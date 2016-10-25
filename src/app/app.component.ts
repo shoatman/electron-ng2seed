@@ -19,6 +19,7 @@ export class AppComponent {
 	}
 
 	private userSignedIn(err:string, token:any){
+		console.log(err);
 		console.log(token);
 	}
 
@@ -31,6 +32,7 @@ export class AppComponent {
 	}
 	
 	private accessTokenCallback(err:string, token:any){
+		console.log(err);
 		console.log(token);
 	}
 
