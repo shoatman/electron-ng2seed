@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import '../../public/css/styles.css';
-import {AuthorizationService} from './authorization.service.ts';
+import {AuthorizationService} from './authorization.service';
 
 @Component({
   selector: 'my-app',
@@ -14,27 +14,8 @@ export class AppComponent {
 
 	constructor(private authorizationService: AuthorizationService){}
 
-	authorize() {
-		this.authorizationService.signIn(this.userSignedIn);
-	}
-
-	private userSignedIn(err:string, token:any){
-		console.log(err);
-		console.log(token);
-	}
-
-	getCachedUser(){
-		console.log(this.authorizationService.getCachedUser());
-	}
-
 	getARMAccessToken(){
-		this.authorizationService.acquireToken(this.accessTokenCallback, this.armResourceId);
+		this.authorizationService.acquireToken(this.armResourceId);
 	}
-	
-	private accessTokenCallback(err:string, token:any){
-		console.log(err);
-		console.log(token);
-	}
-
 
 }

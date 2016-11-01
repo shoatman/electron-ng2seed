@@ -14,6 +14,8 @@ module.exports = {
     extensions: ['', '.js', '.ts']
   },
 
+  externals: ['keytar'],
+
   module: {
     loaders: [
       {
