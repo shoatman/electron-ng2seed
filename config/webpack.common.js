@@ -3,6 +3,12 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var helpers = require('./helpers');
 
+var Fs = require('fs')
+var nodeModules = {}
+Fs.readdirSync('node_modules').forEach(function (module) {
+  if (module !== '.bin') nodeModules[module] = 'commonjs ' + module
+})
+
 module.exports = {
   entry: {
     'polyfills': './src/polyfills.ts',
@@ -14,7 +20,7 @@ module.exports = {
     extensions: ['', '.js', '.ts']
   },
 
-  externals: ['keytar'],
+  externals: nodeModules,
 
   module: {
     loaders: [

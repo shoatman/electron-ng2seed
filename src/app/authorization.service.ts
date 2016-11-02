@@ -95,6 +95,7 @@ export class AuthorizationService {
 	public constructor() {
 
 
+
 		var config: authorayes.AADTokenBrokerConfig = {
 			tenantId: 'common', //COMMON OR YOUR TENANT ID
       		clientId: '188743b4-4d95-4971-9d7b-1f2c105c9bda', //REPLACE WITH YOUR CLIENT ID
@@ -107,6 +108,7 @@ export class AuthorizationService {
 		};
 
 		this.tokenBroker = new authorayes.AADTokenBroker(config);
+
 
 	}
 
