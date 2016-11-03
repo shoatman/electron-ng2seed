@@ -27,8 +27,8 @@ class ElectronInteractiveAuthorizationCommand extends authorayes.InteractiveAuth
 	private createAuthWindow(){
 		var webPreferences: Electron.WebPreferences = {};
 		var options: Electron.BrowserWindowOptions = {};
-		options.width = 800;
-		options.height = 600;
+		options.width = 400;
+		options.height = 800;
 		options.show = false;
 		webPreferences.nodeIntegration = false;
 		options.webPreferences = webPreferences;
@@ -51,7 +51,7 @@ class ElectronInteractiveAuthorizationCommand extends authorayes.InteractiveAuth
 		var handleNavigationBound = handleNavigation.bind(this);
 		
 		this.authWindow.webContents.on("did-get-redirect-request", handleRedirectBound);
-		this.authWindow.webContents.on("will-navigate", handleNavigationBound);
+		//this.authWindow.webContents.on("will-navigate", handleNavigationBound);  //Don't think we need both so removing this one
 
 	}
 
@@ -70,15 +70,9 @@ class ElectronInteractiveAuthorizationCommand extends authorayes.InteractiveAuth
 
 	private handleCallBack(url:string){
 		if (url.indexOf(this.expectedRedirectUri) != -1) {
-			
-			//this.authContext.handleWindowCallback(url.substr(url.indexOf('#'))); //This doesn't work due to checkfor popup=true...
-			var hash = url.substr(url.indexOf('#'));
+			console.log(url);
+			this.resolve(url);
 			this.authWindow.destroy();
-			this.resolve(hash);
-			//var requestInfo = this.authContext.getRequestInfo(hash);
-            //this.authContext.saveTokenFromHash(requestInfo);
-            //this.authContext.callback("", requestInfo.parameters[CONSTANTS.ID_TOKEN]);
-			
 		}
 	}
 }
