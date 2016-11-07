@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import {remote} from 'electron';
 //import {AuthenticationContextConfig, AuthenticationContext, Logger, LogLevel, CONSTANTS} from './adal';
 import * as authorayes from 'authorayes';
-import * as Promise from 'bluebird';
 import * as keytar from 'keytar';
 
 
